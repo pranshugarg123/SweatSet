@@ -1,0 +1,14 @@
+.image-blur-top::before {
+    @apply absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-black via-transparent;
+    content: '';
+    z-index: 1;
+    opacity: 0.9;
+}
+
+.image-blur-bottom::after {
+    @apply absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-transparent;
+    content: '';
+    z-index: 1;
+    opacity: 0.9;
+}
+
