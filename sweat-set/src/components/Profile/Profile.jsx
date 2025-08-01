@@ -13,6 +13,10 @@ function Profile({ userLoggedin }) {
   const [pushUpCount, setPushUpCount] = useState(0);
   const [caloricBurn, setCaloricBurn] = useState(0);
 
+  // Target push-ups, default 100
+  const [targetPushUps, setTargetPushUps] = useState(100);
+  const [newTarget, setNewTarget] = useState("");
+
   const navigate = useNavigate();
 
   axios.defaults.withCredentials = true;
@@ -68,6 +72,42 @@ function Profile({ userLoggedin }) {
       })
       .catch(console.error);
   }, [userLoggedin]);
+
+  // New effect to fetch target push-ups from backend
+  useEffect(() => {
+    if (!userLoggedin) return;
+
+    axios
+      .post("http://localhost:5001/pushUp/target/get", { username: userLoggedin })
+      .then((res) => {
+        if (res.data.targetPushUps) {
+          setTargetPushUps(res.data.targetPushUps);
+        }
+      })
+      .catch(console.error);
+  }, [userLoggedin]);
+
+  // Function to update target push-ups
+  const updateTarget = () => {
+    if (!newTarget || isNaN(newTarget) || newTarget <= 0) {
+      alert("Please enter a valid positive number");
+      return;
+    }
+
+    axios
+      .post("http://localhost:5001/pushUp/target", {
+        username: userLoggedin,
+        targetPushUps: Number(newTarget),
+      })
+      .then(() => {
+        setTargetPushUps(Number(newTarget));
+        setNewTarget("");
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Failed to update target");
+      });
+  };
 
   if (!userLoggedin) {
     return <h1 className="text-white p-6">Loading...</h1>;
@@ -160,12 +200,19 @@ function Profile({ userLoggedin }) {
               <div>
                 <div className="flex justify-between">
                   <span className="font-bold">PushUp Count:</span>
-                  <span>{pushUpCount}/100</span>
+                  <span>
+                    {pushUpCount}/{targetPushUps}
+                  </span>
                 </div>
                 <div className="w-full h-4 bg-gray-200 rounded-full relative my-1">
                   <div
                     className="h-4 bg-blue-500 rounded-full relative"
-                    style={{ width: `${pushUpCount}%` }}
+                    style={{
+                      width: `${Math.min(
+                        (pushUpCount / targetPushUps) * 100,
+                        100
+                      )}%`,
+                    }}
                   />
                 </div>
               </div>
@@ -178,26 +225,54 @@ function Profile({ userLoggedin }) {
                 <div className="w-full h-4 bg-gray-200 rounded-full relative">
                   <div
                     className="h-4 bg-blue-500 rounded-full relative my-1"
-                    style={{ width: `${caloricBurn / 0.29}%` }}
+                    style={{ width: `${(caloricBurn / 0.29).toFixed(2)}%` }}
                   />
                 </div>
               </div>
 
               <div>
                 <div className="flex justify-between">
-                  <span className="font-bold">Target:</span>
+                  <span className="font-bold">Target Progress:</span>
                   <span>
-                    {Math.min((pushUpCount / 100) * 100, 100).toFixed(0)}%
+                    {Math.min(
+                      (pushUpCount / targetPushUps) * 100,
+                      100
+                    ).toFixed(0)}
+                    %
                   </span>
                 </div>
                 <div className="w-full h-4 bg-gray-200 rounded-full relative">
                   <div
                     className="h-4 bg-blue-500 rounded-full relative my-1"
                     style={{
-                      width: `${Math.min((pushUpCount / 100) * 100, 100)}%`,
+                      width: `${Math.min(
+                        (pushUpCount / targetPushUps) * 100,
+                        100
+                      )}%`,
                     }}
                   />
                 </div>
+              </div>
+
+              {/* Add target update UI */}
+              <div className="mt-6 px-8">
+                <label className="block mb-2 font-bold" htmlFor="targetInput">
+                  Update Target Push-Ups:
+                </label>
+                <input
+                  id="targetInput"
+                  type="number"
+                  placeholder="Enter new target"
+                  value={newTarget}
+                  onChange={(e) => setNewTarget(e.target.value)}
+                  className="p-2 rounded text-black w-full"
+                />
+                <button
+                  onClick={updateTarget}
+                  className="mt-3 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
+                >
+                  Update Target
+                </button>
               </div>
             </div>
           </div>

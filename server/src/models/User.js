@@ -23,7 +23,11 @@ const userSchema = new mongoose.Schema({
     dateRegistered: {
         type: Date,
         default: Date.now,
-    }
+    },
+    targetPushUps: {
+    type: Number,
+    default: 100, // default target if not set
+  },
 });
 
 const UserModel = mongoose.model('User', userSchema);
