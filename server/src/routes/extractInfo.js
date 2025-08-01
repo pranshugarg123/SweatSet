@@ -2,10 +2,10 @@ import express from "express";
 import { User } from "../models/User.js";
 import { pushUpRecord } from "../models/PushUpRecord.js";
 import { additionalInfo } from "../models/AdditionalInfo.js";
-
+import { verifyToken } from "./verify.js";
 const router = express.Router();
 
-router.post("/profile", async (req, res) => {
+router.post("/profile",verifyToken, async (req, res) => {
     try {
         const { userLoggedin } = req.body;
 
@@ -23,7 +23,7 @@ router.post("/profile", async (req, res) => {
     }
 });
 
-router.post("/addinfo", async (req, res) => {
+router.post("/addinfo",verifyToken, async (req, res) => {
     try {
         const { userLoggedin } = req.body;
 
@@ -41,7 +41,7 @@ router.post("/addinfo", async (req, res) => {
 });
 
 
- router.post("/pushup", async (req, res) => {
+ router.post("/pushup",verifyToken, async (req, res) => {
     try {
         const { userLoggedin } = req.body;
 

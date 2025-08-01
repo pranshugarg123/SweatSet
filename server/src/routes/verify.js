@@ -24,4 +24,4 @@ router.get('/verifyUser', verifyToken, (req, res) => {
     res.status(200).json({ status: true, message: "Verified", user: req.user });
 });
 
-export { router as verifyRouter };
+export { router as verifyRouter,verifyToken };

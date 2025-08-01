@@ -3,7 +3,7 @@ import { additionalInfo } from "../models/AdditionalInfo.js";
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
+import { verifyToken } from "./verify.js";
 const router = express.Router();
 
 router.post("/signup", async (req, res) => {
@@ -60,7 +60,7 @@ router.post("/signup", async (req, res) => {
     }
 });
 
-router.post("/additional-info", async (req, res) => {
+router.post("/additional-info",verifyToken, async (req, res) => {
     try {
         const { userLoggedin, dob, weight, height, imageLink } = req.body;
 

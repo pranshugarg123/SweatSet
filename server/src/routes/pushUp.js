@@ -1,9 +1,9 @@
 import express from "express";
 import { pushUpRecord } from "../models/PushUpRecord.js";
-
+import { verifyToken } from "./verify.js";
 const router = express.Router();
 
-router.post("/data", async (req, res) => {
+router.post("/data", verifyToken,async (req, res) => {
     const { username, exportPushCount, caloricBurn } = req.body;
 
     // TODO: Validate the input data

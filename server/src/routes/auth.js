@@ -3,7 +3,7 @@ import { Trainer } from "../models/Trainer.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
-
+import { verifyToken } from "./verify.js";
 const router = express.Router();
 
 router.post("/login", async (req, res) => {
