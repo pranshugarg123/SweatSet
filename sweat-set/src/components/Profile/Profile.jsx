@@ -13,14 +13,13 @@ function Profile({ userLoggedin }) {
   const [pushUpCount, setPushUpCount] = useState(0);
   const [caloricBurn, setCaloricBurn] = useState(0);
 
-  // Target push-ups, default 100
   const [targetPushUps, setTargetPushUps] = useState(100);
   const [newTarget, setNewTarget] = useState("");
 
   const navigate = useNavigate();
-
   axios.defaults.withCredentials = true;
 
+  // Verify user login
   useEffect(() => {
     if (!userLoggedin) return;
 
@@ -34,6 +33,7 @@ function Profile({ userLoggedin }) {
       });
   }, [userLoggedin, navigate]);
 
+  // Fetch user basic info
   useEffect(() => {
     if (!userLoggedin) return;
 
@@ -47,6 +47,7 @@ function Profile({ userLoggedin }) {
       .catch(console.error);
   }, [userLoggedin]);
 
+  // Fetch push-up stats
   useEffect(() => {
     if (!userLoggedin) return;
 
@@ -59,35 +60,36 @@ function Profile({ userLoggedin }) {
       .catch(console.error);
   }, [userLoggedin]);
 
+  // Fetch additional info
   useEffect(() => {
     if (!userLoggedin) return;
 
     axios
       .post("http://localhost:5001/extract/addinfo", { userLoggedin })
       .then((res) => {
-        setAge(res.data.info.dob);
-        setWeight(res.data.info.weight);
-        setHeight(res.data.info.height);
-        setImg(res.data.info.imageLink);
+        if (res.data.info) {
+          setAge(res.data.info.dob);
+          setWeight(res.data.info.weight);
+          setHeight(res.data.info.height);
+          setImg(res.data.info.imageLink);
+        }
       })
       .catch(console.error);
   }, [userLoggedin]);
 
-  // New effect to fetch target push-ups from backend
+  // Fetch target push-ups
   useEffect(() => {
     if (!userLoggedin) return;
 
     axios
       .post("http://localhost:5001/pushUp/target/get", { username: userLoggedin })
       .then((res) => {
-        if (res.data.targetPushUps) {
-          setTargetPushUps(res.data.targetPushUps);
-        }
+        if (res.data.targetPushUps) setTargetPushUps(res.data.targetPushUps);
       })
       .catch(console.error);
   }, [userLoggedin]);
 
-  // Function to update target push-ups
+  // Update target push-ups
   const updateTarget = () => {
     if (!newTarget || isNaN(newTarget) || newTarget <= 0) {
       alert("Please enter a valid positive number");
@@ -123,6 +125,7 @@ function Profile({ userLoggedin }) {
       </h2>
 
       <div className="flex flex-wrap justify-center">
+        {/* Profile Section */}
         <div className="w-full md:w-2/5 md:px-4 mb-8">
           <div className="bg-gray-900 p-6 rounded-lg shadow-lg border border-slate-500">
             <h3 className="text-2xl mb-4 text-center border-b-2 border-gray-400 pb-2">
@@ -178,18 +181,18 @@ function Profile({ userLoggedin }) {
             </div>
           </div>
 
+          {/* Add/Update Additional Info Button */}
           <div className="text-center mt-4">
-            {age && weight && height ? null : (
-              <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                onClick={() => navigate("/addinfo")}
-              >
-                Add Info
-              </button>
-            )}
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => navigate("/addinfo")}
+            >
+              {age && weight && height ? "Update Info" : "Add Info"}
+            </button>
           </div>
         </div>
 
+        {/* Records Section */}
         <div className="w-full md:w-3/5 md:px-4 mb-8">
           <div className="bg-gray-900 p-6 rounded-lg shadow-lg border border-slate-500">
             <h3 className="text-2xl mb-4 text-center border-b-2 border-gray-400 pb-2">
@@ -197,6 +200,7 @@ function Profile({ userLoggedin }) {
             </h3>
 
             <div className="flex flex-col space-y-4 px-8 text-lg">
+              {/* Push-Up Count */}
               <div>
                 <div className="flex justify-between">
                   <span className="font-bold">PushUp Count:</span>
@@ -206,7 +210,7 @@ function Profile({ userLoggedin }) {
                 </div>
                 <div className="w-full h-4 bg-gray-200 rounded-full relative my-1">
                   <div
-                    className="h-4 bg-blue-500 rounded-full relative"
+                    className="h-4 bg-blue-500 rounded-full"
                     style={{
                       width: `${Math.min(
                         (pushUpCount / targetPushUps) * 100,
@@ -217,19 +221,23 @@ function Profile({ userLoggedin }) {
                 </div>
               </div>
 
+              {/* Caloric Burn */}
               <div>
                 <div className="flex justify-between">
                   <span className="font-bold">Caloric Burn:</span>
                   <span>{caloricBurn} Cal</span>
                 </div>
-                <div className="w-full h-4 bg-gray-200 rounded-full relative">
+                <div className="w-full h-4 bg-gray-200 rounded-full relative my-1">
                   <div
-                    className="h-4 bg-blue-500 rounded-full relative my-1"
-                    style={{ width: `${(caloricBurn / 0.29).toFixed(2)}%` }}
+                    className="h-4 bg-blue-500 rounded-full"
+                    style={{
+                      width: `${Math.min((caloricBurn / 0.29), 100)}%`,
+                    }}
                   />
                 </div>
               </div>
 
+              {/* Target Progress */}
               <div>
                 <div className="flex justify-between">
                   <span className="font-bold">Target Progress:</span>
@@ -241,9 +249,9 @@ function Profile({ userLoggedin }) {
                     %
                   </span>
                 </div>
-                <div className="w-full h-4 bg-gray-200 rounded-full relative">
+                <div className="w-full h-4 bg-gray-200 rounded-full relative my-1">
                   <div
-                    className="h-4 bg-blue-500 rounded-full relative my-1"
+                    className="h-4 bg-blue-500 rounded-full"
                     style={{
                       width: `${Math.min(
                         (pushUpCount / targetPushUps) * 100,
@@ -254,7 +262,7 @@ function Profile({ userLoggedin }) {
                 </div>
               </div>
 
-              {/* Add target update UI */}
+              {/* Update Target Push-Ups */}
               <div className="mt-6 px-8">
                 <label className="block mb-2 font-bold" htmlFor="targetInput">
                   Update Target Push-Ups:
@@ -269,7 +277,8 @@ function Profile({ userLoggedin }) {
                 />
                 <button
                   onClick={updateTarget}
-                  className="mt-3 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
+                  className="mt-3 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-auto block"
+                  style={{ width: "220px" }}
                 >
                   Update Target
                 </button>
