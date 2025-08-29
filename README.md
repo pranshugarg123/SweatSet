@@ -28,3 +28,6 @@ SweatSet is a **fitness tracking web app** that allows users to monitor their pu
 ### **Password Management**
 - `POST /password/forgot-password` → Send password reset email
 - `POST /password/reset-password/:token` → Reset password using token
+
+### **Contact**
+- `POST /contact` → Submit a contact form message
