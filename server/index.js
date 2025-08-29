@@ -9,7 +9,7 @@ import { pushUpRouter } from "./src/routes/pushUp.js";
 import { forgetPasswordRouter } from "./src/routes/forgetPassword.js";
 import { verifyRouter } from "./src/routes/verify.js";
 import { userLoggedinRouter } from "./src/routes/extractInfo.js";
-
+import { contactRouter } from "./src/routes/contact.js";
 dotenv.config();
 const app = express();
 connectDB();
@@ -45,6 +45,7 @@ app.use("/verify", verifyRouter);
 
 // Extract user info route
 app.use("/extract", userLoggedinRouter);
+app.use("/contact", contactRouter);
 
 app.listen( 5001, () => {
   console.log(`Server is listening on port 5001`);
